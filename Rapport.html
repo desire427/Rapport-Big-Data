@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP1 - Introduction au Big Data - Rapport Complet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-black font-sans antialiased">
+
+    <div class="max-w-5xl mx-auto px-6 py-12">
+
+        <!-- TITRE PRINCIPAL -->
+        <h1 class="text-3xl font-bold border-b-2 border-black pb-4 mb-2">
+            TP1 - Introduction au Big Data
+        </h1>
+        <p class="text-sm text-gray-600 mb-8">Rapport complet d'execution - Partie 1 : Pandas &amp; Partie 2 : Hadoop / Spark</p>
+
+        <!-- ======================================================== -->
+        <!-- PARTIE 1                                                 -->
+        <!-- ======================================================== -->
+        <h2 class="text-2xl font-bold mt-10 mb-4">Partie 1 - Exploration Python &amp; Pandas</h2>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">1. Chargement et Exploration du Dataset</h3>
+        <p class="mb-4">
+            Le jeu de donnees NYC Taxi Trips 2023 (500 000 lignes, 19 colonnes) a ete charge depuis l'API publique.
+            Les colonnes principales incluent les dates de prise en charge et de depot, la distance, le montant facture, le type de paiement, etc.
+        </p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">2. Analyse des 5V du Big Data</h3>
+
+        <h4 class="font-semibold mt-4">V1 - Volume</h4>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Taille du fichier CSV : <span class="font-mono">55.9 Mo</span></li>
+            <li>Lignes : <span class="font-mono">500 000</span></li>
+            <li>Colonnes : <span class="font-mono">19</span></li>
+        </ul>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q1 :</span> Annee complete (x12) : <span class="font-mono">670 Mo</span>. Ce volume illustre le defi du <span class="font-bold">Volume</span> en Big Data.</p>
+        </div>
+
+        <h4 class="font-semibold mt-4">V2 - Velocite</h4>
+        <p class="mb-2">Distribution des courses par heure :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+0     13441
+1      9856
+...
+18    37014
+17    36641
+15    34948
+...
+dtype: int64</pre>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q2 :</span> L'heure de pointe est <span class="font-bold">18h</span> avec 37 014 courses. Ce flux correspond a un traitement <span class="font-bold">Batch</span> (donnees stockees puis analysees).</p>
+        </div>
+
+        <h4 class="font-semibold mt-4">V3 - Variete</h4>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Types de colonnes : <span class="font-mono">object</span> (18), <span class="font-mono">datetime64[ns]</span> (1)</li>
+            <li>Colonnes texte : <span class="font-mono">vendorid, tpep_dropoff_datetime, passenger_count, ...</span></li>
+        </ul>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q3 :</span> 3 types de donnees : <span class="font-mono">store_and_fwd_flag</span> (semi-structure), <span class="font-mono">tpep_pickup_datetime</span> (structuree), <span class="font-mono">fare_amount</span> (numerique).</p>
+        </div>
+
+        <h4 class="font-semibold mt-4">V4 - Veracite</h4>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Valeurs manquantes : <span class="font-mono">2.585%</span> sur <span class="font-mono">passenger_count</span>, <span class="font-mono">congestion_surcharge</span>, etc.</li>
+            <li>Doublons : <span class="font-mono">0</span></li>
+            <li>Anomalies : tarifs negatifs (<span class="font-mono">4366</span> lignes) et tarifs > 500$ (<span class="font-mono">4</span> lignes)</li>
+        </ul>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q4 :</span> <span class="font-mono">2.585%</span> de donnees manquantes. Strategies : suppression des lignes incompletes, imputation par la moyenne/mediane, suppression des tarifs aberrants.</p>
+        </div>
+
+        <h4 class="font-semibold mt-4">V5 - Valeur</h4>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Revenu moyen par heure de la journee</li>
+            <li>Top 5 zones de prise en charge : <span class="font-mono">vendorid 2</span> (365 982 courses)</li>
+        </ul>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q5 :</span> L'heure la plus rentable est <span class="font-bold">18h</span>. Insight : concentrer les ressources (chauffeurs) sur les heures de pointe pour maximiser les profits.</p>
+        </div>
+
+        <h4 class="font-semibold mt-4">Visualisation</h4>
+        <p class="mb-4">Trois graphiques ont ete generes :</p>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Courses par heure (barres)</li>
+            <li>Distribution des tarifs (histogramme)</li>
+            <li>Revenu moyen par heure (ligne)</li>
+        </ul>
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q6 :</span> Les graphiques montrent une forte activite entre 15h et 18h, ce qui suggere d'optimiser les effectifs et les tarifs sur cette plage horaire.</p>
+        </div>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">3. Comparaison des Formats de Fichiers</h3>
+        <div class="overflow-x-auto border border-black mb-6">
+            <table class="w-full text-sm border-collapse">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left p-2 font-bold">Critere</th>
+                        <th class="text-left p-2 font-bold">CSV</th>
+                        <th class="text-left p-2 font-bold">JSON</th>
+                        <th class="text-left p-2 font-bold">Parquet</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-black"><td class="p-2">Taille fichier (Mo)</td><td class="p-2">55.9</td><td class="p-2">228.5</td><td class="p-2">10.4</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">Temps ecriture (s)</td><td class="p-2">4.17</td><td class="p-2">6.52</td><td class="p-2">1.26</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">Temps lecture + filtre (s)</td><td class="p-2">1.24</td><td class="p-2">6.52</td><td class="p-2">0.48</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">Lisible sans outil</td><td class="p-2">Oui</td><td class="p-2">Oui</td><td class="p-2">Non (binaire)</td></tr>
+                    <tr><td class="p-2">Compression native</td><td class="p-2">Non</td><td class="p-2">Non</td><td class="p-2">Oui (Snappy)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q7 :</span> Parquet n'est pas toujours le meilleur choix. CSV est ideal pour l'echange universel et la relecture humaine. JSON convient aux APIs et donnees hierarchiques. Parquet est optimal pour le Big Data et Spark.</p>
+        </div>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q8 :</span> Pour un reseau social generant 10 milliards d'evenements/jour, le format <span class="font-bold">Parquet</span> est recommande pour sa compression (reduction des couts) et ses performances en lecture colonnaire.</p>
+        </div>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q9 :</span> La relation taille/temps n'est pas lineaire (sous-lineaire). Cela implique que les technologies Big Data passent bien a l'echelle, mais que des volumes massifs necessitent des architectures distribuees (Spark, Hadoop).</p>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PARTIE 2                                                 -->
+        <!-- ======================================================== -->
+        <h2 class="text-2xl font-bold mt-12 pt-8 border-t border-black mb-4">Partie 2 - Hadoop &amp; Spark via Docker</h2>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">1. Lancement du Cluster Docker</h3>
+        <p class="mb-4">Le cluster a ete deploye avec <span class="font-mono">docker-compose.yml</span> definissant 7 conteneurs :</p>
+        <div class="overflow-x-auto border border-black mb-6">
+            <table class="w-full text-sm border-collapse">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left p-2 font-bold">Conteneur</th>
+                        <th class="text-left p-2 font-bold">Role</th>
+                        <th class="text-left p-2 font-bold">Port</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-black"><td class="p-2">namenode</td><td class="p-2">Maitre HDFS</td><td class="p-2">9870</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">datanode</td><td class="p-2">Stockage HDFS</td><td class="p-2">9864</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">resourcemanager</td><td class="p-2">YARN</td><td class="p-2">8088</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">nodemanager</td><td class="p-2">Execution YARN</td><td class="p-2">8042</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">spark-master</td><td class="p-2">Orchestration Spark</td><td class="p-2">8080</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">spark-worker</td><td class="p-2">Execution Spark</td><td class="p-2">8081</td></tr>
+                    <tr><td class="p-2">jupyter</td><td class="p-2">Notebook PySpark</td><td class="p-2">8888</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">2. Exploration HDFS</h3>
+        <p class="mb-2">Commandes executees :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+docker exec -it namenode bash
+hdfs dfs -mkdir -p /tp1/data
+hdfs dfs -put /data/taxi.csv /tp1/data/
+hdfs dfs -ls /tp1/data/
+hdfs dfs -cat /tp1/data/taxi.csv | head -5
+hdfs dfs -du -h /tp1/data/
+hdfs fsck /tp1/data/taxi.csv -files -blocks</pre>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q10 :</span> Le fichier occupe <span class="font-mono">1 bloc</span> de <span class="font-mono">55 890 101 octets</span> (53.3 Mo). Facteur de replication : <span class="font-mono">1</span> (configure dans <span class="font-mono">hadoop.env</span>).</p>
+        </div>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">3. Premier Job MapReduce</h3>
+        <p class="mb-2"><span class="font-bold">Ce qui etait demande :</span> utiliser <span class="font-mono">mapper.py</span> et <span class="font-mono">reducer.py</span> en Python.</p>
+
+        <p class="font-semibold mt-4">mapper.py</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+#!/usr/bin/env python3
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    if line.startswith('VendorID'):
+        continue
+    cols = line.split(',')
+    try:
+        pickup = cols[1]
+        heure = pickup[11:13]
+        print(f'{heure}\t1')
+    except:
+        pass</pre>
+
+        <p class="font-semibold mt-4">reducer.py</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+#!/usr/bin/env python3
+import sys
+heure_courante = None
+total = 0
+for line in sys.stdin:
+    heure, count = line.strip().split('\t')
+    if heure == heure_courante:
+        total += int(count)
+    else:
+        if heure_courante:
+            print(f'{heure_courante}\t{total}')
+        heure_courante = heure
+        total = int(count)
+if heure_courante:
+    print(f'{heure_courante}\t{total}')</pre>
+
+        <p class="font-semibold mt-4">Probleme rencontre :</p>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Python3 n'est pas installe sur les conteneurs Hadoop (Debian Stretch, depots hors ligne)</li>
+            <li>Erreur : <span class="font-mono">Cannot run program "python3": error=2, No such file or directory</span></li>
+        </ul>
+
+        <p class="font-semibold mt-4">Solution de contournement : AWK</p>
+        <p class="mb-2">AWK est present sur tous les systemes UNIX. Transformation :</p>
+        <div class="overflow-x-auto border border-black mb-6">
+            <table class="w-full text-sm border-collapse">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left p-2 font-bold">Python</th>
+                        <th class="text-left p-2 font-bold">AWK</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-black"><td class="p-2"><span class="font-mono">line.split(',')</span></td><td class="p-2"><span class="font-mono">-F','</span></td></tr>
+                    <tr class="border-b border-black"><td class="p-2"><span class="font-mono">line.startswith('VendorID')</span></td><td class="p-2"><span class="font-mono">NR>1</span></td></tr>
+                    <tr class="border-b border-black"><td class="p-2"><span class="font-mono">cols[1]</span></td><td class="p-2"><span class="font-mono">$2</span></td></tr>
+                    <tr class="border-b border-black"><td class="p-2"><span class="font-mono">pickup[11:13]</span></td><td class="p-2"><span class="font-mono">substr($2,12,2)</span></td></tr>
+                    <tr><td class="p-2"><span class="font-mono">print(f'{heure}\t1')</span></td><td class="p-2"><span class="font-mono">print $2 "\t1"</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="font-semibold mt-4">Commande finale :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+hdfs dfs -rm -r /tp1/output/courses
+hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
+  -input  /tp1/data/taxi.csv     \
+  -output /tp1/output/courses    \
+  -mapper  "awk -F',' 'NR>1 {print substr($2,12,2) \"\t1\"}'" \
+  -reducer "cat"</pre>
+
+        <p class="font-semibold mt-4">Post-traitement et resultat :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+hdfs dfs -cat /tp1/output/courses/part-00000 | sort | uniq -c | sort -rn | head -3
+  37014 18
+  36641 17
+  34948 15</pre>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q11 :</span> Les 3 heures avec le plus de courses sont <span class="font-bold">18h</span> (37 014), <span class="font-bold">17h</span> (36 641) et <span class="font-bold">15h</span> (34 948). Ces resultats sont identiques a l'analyse Pandas de la Partie 1.</p>
+        </div>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">4. Analyse avec PySpark</h3>
+        <p class="font-semibold mt-4">Chargement des donnees :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName('TP1_BigData').master('local[*]').getOrCreate()
+df = spark.read.csv('hdfs://namenode:9000/tp1/data/taxi.csv', header=True, inferSchema=True)
+print(f'Lignes : {df.count():,}  ->  Colonnes : {len(df.columns)}')
+# Resultat : Lignes : 500,000  ->  Colonnes : 20</pre>
+
+        <p class="font-semibold mt-4">Courses par heure :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+from pyspark.sql.functions import hour, col, avg, count
+df.withColumn('heure', hour('tpep_pickup_datetime')).groupBy('heure').count().orderBy('heure').show()
++-----+------+
+|heure| count|
++-----+------+
+|    0| 13441|
+|    1|  9856|
+|  ...|   ...|
+|   18| 37014|
+|   17| 36641|
+|   15| 34948|
++-----+------+</pre>
+
+        <p class="font-semibold mt-4">Tarif moyen par type de paiement :</p>
+        <pre class="bg-gray-100 p-4 border border-black text-sm overflow-x-auto mb-4">
+df.groupBy('payment_type').agg(avg('fare_amount').alias('tarif_moyen'), count('*').alias('nb_courses')).orderBy('tarif_moyen', ascending=False).show()
++------------+------------------+----------+
+|payment_type|       tarif_moyen|nb_courses|
++------------+------------------+----------+
+|           0| 22.79167350096711|     12925|
+|           1|20.103658115454714|    374138|
+|           2|19.243134492117562|    103902|
+|           3| 8.820613341764151|      3163|
+|           4|2.0932118528610353|      5872|
++------------+------------------+----------+</pre>
+
+        <div class="border-l-4 border-black pl-4 my-4">
+            <p><span class="font-bold">Q12 :</span> Pour 500 000 lignes, Pandas et PySpark ont des performances similaires. Spark devient plus avantageux a partir de <span class="font-bold">10 millions de lignes</span> grace a la parallelisation et a la distribution.</p>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SYNTHESE                                                 -->
+        <!-- ======================================================== -->
+        <h2 class="text-2xl font-bold mt-12 pt-8 border-t border-black mb-4">Synthese des Resultats</h2>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">Comparaison des trois approches</h3>
+        <div class="overflow-x-auto border border-black mb-6">
+            <table class="w-full text-sm border-collapse">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left p-2 font-bold">Critere</th>
+                        <th class="text-left p-2 font-bold">Pandas</th>
+                        <th class="text-left p-2 font-bold">Hadoop + AWK</th>
+                        <th class="text-left p-2 font-bold">PySpark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-black"><td class="p-2">Temps d'execution</td><td class="p-2">Rapide</td><td class="p-2">Moyen</td><td class="p-2">Rapide</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">Volume traite</td><td class="p-2">&lt; 1M</td><td class="p-2">&gt; 100M</td><td class="p-2">&gt; 10M</td></tr>
+                    <tr class="border-b border-black"><td class="p-2">Complexite</td><td class="p-2">Simple</td><td class="p-2">Complexe</td><td class="p-2">Moderee</td></tr>
+                    <tr><td class="p-2">Resultat (Top 3)</td><td class="p-2">18h,17h,15h</td><td class="p-2">18h,17h,15h</td><td class="p-2">18h,17h,15h</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">Ce qui a fonctionne</h3>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Chargement et exploration du dataset avec Pandas</li>
+            <li>Analyse des 5V du Big Data</li>
+            <li>Comparaison des formats CSV, JSON et Parquet</li>
+            <li>Deploiement du cluster Hadoop/Spark avec Docker</li>
+            <li>Exploration HDFS et chargement des donnees</li>
+            <li>Execution du job MapReduce avec AWK (contournement Python)</li>
+            <li>Analyse avec PySpark</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">Ce qui n'a pas fonctionne comme prevu</h3>
+        <ul class="list-disc pl-6 mb-4 space-y-1">
+            <li>Execution des scripts Python (<span class="font-mono">mapper.py</span>/<span class="font-mono">reducer.py</span>) sur les conteneurs Hadoop</li>
+            <li>Installation de Python3 sur les conteneurs (depots Debian Stretch hors ligne)</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">Solution apportee</h3>
+        <p class="mb-4">
+            Utilisation de <span class="font-bold">AWK</span> comme solution de contournement, produisant des resultats identiques aux scripts Python demandes.
+        </p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-2">Lecons apprises</h3>
+        <ol class="list-decimal pl-6 mb-4 space-y-1">
+            <li>Verifier les dependances logicielles dans les conteneurs Docker</li>
+            <li>Savoir trouver des solutions alternatives (AWK) lorsque l'approche initiale echoue</li>
+            <li>AWK est un outil universel sur tous les systemes UNIX</li>
+            <li>La validation croisee (Pandas, Hadoop, PySpark) confirme la coherence des resultats</li>
+        </ol>
+
+        <div class="border-t-2 border-black pt-6 mt-10 text-center text-sm text-gray-600">
+            TP1 - Introduction au Big Data | Rapport complet d'execution
+        </div>
+
+    </div>
+
+</body>
+</html>
